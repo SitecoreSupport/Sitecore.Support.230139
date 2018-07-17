@@ -1,7 +1,4 @@
-﻿using Sitecore;
-using Sitecore.Configuration;
-using Sitecore.Data.Items;
-using Sitecore.Diagnostics;
+﻿using Sitecore.Diagnostics;
 using Sitecore.Globalization;
 using Sitecore.Resources;
 using Sitecore.Shell.DeviceSimulation;
@@ -11,11 +8,13 @@ using Sitecore.Web;
 using Sitecore.Web.UI.Framework.Scripts;
 using Sitecore.Web.UI.Sheer;
 using System;
+using Sitecore.Configuration;
+using Sitecore.Publishing;
 
-namespace Sitecore.Shell.Framework.Commands.ContentEditor
+namespace Sitecore.Support.Shell.Framework.Commands.ContentEditor
 {
   [Serializable]
-  public class Preview : Command
+  public class Preview : Sitecore.Shell.Framework.Commands.ContentEditor.Preview
   {
     public override void Execute(CommandContext context)
     {
@@ -26,6 +25,7 @@ namespace Sitecore.Shell.Framework.Commands.ContentEditor
         string formValue = WebUtil.GetFormValue("scEditorTabs");
         if (formValue.Contains("contenteditor:preview"))
         {
+          PreviewManager.StoreShellUser(Settings.Preview.AsAnonymous);
           SheerResponse.Eval("scContent.onEditorTabClick(null, null, 'Preview')");
         }
         else
@@ -45,25 +45,6 @@ namespace Sitecore.Shell.Framework.Commands.ContentEditor
           SheerResponse.Eval(showEditorTab2.ToString());
         }
       }
-    }
-
-    public override CommandState QueryState(CommandContext context)
-    {
-      Assert.ArgumentNotNull(context, "context");
-      if (!Settings.Preview.Enabled)
-      {
-        return CommandState.Hidden;
-      }
-      if (context.Items.Length != 1)
-      {
-        return CommandState.Disabled;
-      }
-      Item item = context.Items[0];
-      if (!base.HasField(item, FieldIDs.LayoutField))
-      {
-        return CommandState.Hidden;
-      }
-      return base.QueryState(context);
     }
   }
 }
